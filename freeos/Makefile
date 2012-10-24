@@ -6,8 +6,8 @@ default :
 
 # 文件生成规则
 
-ipl.bin : ipl.nas Makefile
-	../os_tools/nask.exe ipl.nas ipl.bin ipl.lst
+ipl.bin : ./src/ipl.nas Makefile
+	../os_tools/nask.exe ./src/ipl.nas ipl.bin ipl.lst
 
 helloos.img : ipl.bin Makefile
 	../os_tools/edimg.exe   imgin:../os_tools/fdimg0at.tek \

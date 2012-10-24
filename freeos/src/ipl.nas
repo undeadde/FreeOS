@@ -50,10 +50,10 @@ retry:
 		ADD		SI,1		; 往SI加1
 		CMP		SI,5		; SI和5比较
 		JAE		error		; SI >= 5 输出错误
-		MOV		AH,0x00         
+		MOV		AH,0x00
 		MOV		DL,0x00		; A驱动器
 		INT		0x13		; 调用磁盘BIOS
-		JMP		retry
+		JC		error
 
 ; 当读完磁盘后进入CPU停止状态
 
