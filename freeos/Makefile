@@ -31,9 +31,11 @@ install :
 	../os_tools/imgtol.com w a: helloos.img
 
 clean :
-	-del ipl.bin
-	-del ipl.lst
+	-del *.bin
+	-del *.lst
+	-del *.bak
+	-del *.img
 
 src_only :
 	../os_tools/make.exe clean
-	-del helloos.img
+	-del *.img
