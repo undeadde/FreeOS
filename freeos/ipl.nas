@@ -2,7 +2,7 @@
 ; TAB=4
 		ORG 	0x7c00 		; 指明程序的装载地址
 		
-; 以下是标准FAT12格式软盘专用的代码
+; 以下是标准FAT12格式软盘专用的代码，扇区C0-H0-S1
 		JMP		entry		; 0xeb, 0x4e
 		DB		0x90		
 		DB		"Haribote"	; 启动区的名称
@@ -25,6 +25,7 @@
 		RESB		18		; 先空出18字节
 
 ; 程序主体
+; 读取扇区C0-H0-S2 到 C0-H0-S18, 512 * 17 = 8704 bytes 装载内存地址0x8200 ~ 0xa3ff处
 entry:
 		MOV		AX,0		;初始化寄存器
 		MOV 	SS,AX
@@ -39,14 +40,14 @@ entry:
 		MOV		CH,0		; 柱面0
 		MOV		DH,0		; 磁头0
 		MOV		CL,2		; 扇区2
-
+readloop:
 		MOV		SI,0		; 记录失败次数的寄存器
 retry:
 		MOV		AH,0x02		; AH=0x02 : 读入磁盘
 		MOV		AL,1		; 1个扇区
 		MOV		DL,0x00		; A驱动器		
 		INT		0x13		; 调用磁盘BIOS
-		JNC		fin		; 没有出错，正常退出
+		JNC		next		; 没有出错跳转到next
 		ADD		SI,1		; 往SI加1
 		CMP		SI,5		; SI和5比较
 		JAE		error		; SI >= 5 输出错误
@@ -55,6 +56,14 @@ retry:
 		INT		0x13		; 调用磁盘BIOS
 		JMP		retry
 
+next:
+		MOV 	AX,ES		;把内存地址后移0x200,下一个扇区开始
+		ADD 	AX,0x0020
+		MOV 	ES,AX		; 因为没有ADD ES, 0x20指令，这里稍微绕个弯
+		ADD 	CL,1		;下一个柱面
+		CMP		CL,18		; 比较CL和18
+		JBE		readloop	;18个柱面以下则继续读取
+		
 ; 当读完磁盘后进入CPU停止状态
 
 fin:
