@@ -15,11 +15,11 @@ default :
 
 # 文件生成规则
 
-ipl.bin : $(SRCPATH)/ipl.nas Makefile
-	$(NASK) $(SRCPATH)/ipl.nas ipl.bin ipl.lst
+ipl.bin : $(SRCPATH)//ipl.nas Makefile
+	$(NASK) $(SRCPATH)//ipl.nas ipl.bin ipl.lst
 	
-haribote.sys : $(SRCPATH)/haribote.nas Makefile
-	$(NASK) $(SRCPATH)/haribote.nas haribote.sys haribote.lst
+haribote.sys : $(SRCPATH)//haribote.nas Makefile
+	$(NASK) $(SRCPATH)//haribote.nas haribote.sys haribote.lst
 	
 haribote.img : ipl.bin haribote.sys Makefile
 	$(EDIMG) imgin:../os_tools/fdimg0at.tek \
