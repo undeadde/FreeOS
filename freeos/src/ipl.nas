@@ -1,8 +1,9 @@
 ; hello-os
 ; TAB=4
+CYLS	EQU		10			; 声明柱面常数CYLS=10
 		ORG 	0x7c00 		; 指明程序的装载地址
 		
-; 以下是标准FAT12格式软盘专用的代码
+; 以下是标准FAT12格式软盘专用的代码，扇区C0-H0-S1
 		JMP		entry		; 0xeb, 0x4e
 		DB		0x90		
 		DB		"Haribote"	; 启动区的名称
@@ -25,11 +26,12 @@
 		RESB		18		; 先空出18字节
 
 ; 程序主体
+; 读取扇区C0-H0-S2 到 C9-H1-S18, 512 * 17 +512 * 18 + 1024 * 9 * 18 = 183808 bytes 装载内存地址0x8200 ~ 0xa3ff处
 entry:
 		MOV		AX,0		;初始化寄存器
 		MOV 	SS,AX
 		MOV 	SP,0x7c00
-		MOV		DS,AX
+		MOV		DS,AX 
 
 ; 读磁盘 CH/CL/DH/DL 分别为柱面，扇区，磁头，驱动器
 		MOV 	AX,0x0820
@@ -39,22 +41,37 @@ entry:
 		MOV		CH,0		; 柱面0
 		MOV		DH,0		; 磁头0
 		MOV		CL,2		; 扇区2
-
+readloop:
 		MOV		SI,0		; 记录失败次数的寄存器
-retry:
+retry:		
+		MOV		DL,0x00		; 第一个驱动器
 		MOV		AH,0x02		; AH=0x02 : 读入磁盘
-		MOV		AL,1		; 1个扇区
-		MOV		DL,0x00		; A驱动器		
+		MOV		AL,1		; 1个扇区			
 		INT		0x13		; 调用磁盘BIOS
-		JNC		fin		; 没有出错，正常退出
+		JNC		next		; 没有出错跳转到next
 		ADD		SI,1		; 往SI加1
 		CMP		SI,5		; SI和5比较
 		JAE		error		; SI >= 5 输出错误
-		MOV		AH,0x00
+		MOV		AH,0x00         
 		MOV		DL,0x00		; A驱动器
 		INT		0x13		; 调用磁盘BIOS
-		JC		error
+		JMP		retry
 
+next:
+		MOV 	AX,ES		;把内存地址后移0x200,下一个扇区开始
+		ADD 	AX,0x0020
+		MOV 	ES,AX		; 因为没有ADD ES, 0x20指令，这里稍微绕个弯
+		ADD 	CL,1		;下一个柱面
+		CMP		CL,18		; 比较CL和18
+		JBE		readloop	;18个柱面以下则继续读取，读完一个磁道
+		MOV 	CL,1
+		ADD		DH,1
+		CMP		DH,2
+		JB		readloop    ; 磁头2对应的背面柱面未读取则继续读取，读完正面和背面2个磁道
+		MOV		DH,0
+		ADD		CH,1
+		CMP		CH,CYLS
+		JB		readloop	
 ; 当读完磁盘后进入CPU停止状态
 
 fin:

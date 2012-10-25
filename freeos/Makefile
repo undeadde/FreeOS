@@ -1,41 +1,52 @@
+TOOLPATH = ../os_tools
+SRCPATH = ./src
+MAKE     = $(TOOLPATH)/make.exe -r
+NASK     = $(TOOLPATH)/nask.exe
+EDIMG    = $(TOOLPATH)/edimg.exe
+IMGTOL   = $(TOOLPATH)/imgtol.com
+COPY     = copy
+DEL      = del
+
 
 # 默认行为
 
 default :
-	../os_tools/make.exe img
+	$(MAKE) img
 
 # 文件生成规则
 
-ipl.bin : ./src/ipl.nas Makefile
-	../os_tools/nask.exe ./src/ipl.nas ipl.bin ipl.lst
-
-helloos.img : ipl.bin Makefile
-	../os_tools/edimg.exe   imgin:../os_tools/fdimg0at.tek \
-		wbinimg src:ipl.bin len:512 from:0 to:0   imgout:helloos.img
+ipl.bin : $(SRCPATH)/ipl.nas Makefile
+	$(NASK) $(SRCPATH)/ipl.nas ipl.bin ipl.lst
+	
+haribote.sys : $(SRCPATH)/haribote.nas Makefile
+	$(NASK) $(SRCPATH)/haribote.nas haribote.sys haribote.lst
+	
+haribote.img : ipl.bin haribote.sys Makefile
+	$(EDIMG) imgin:../os_tools/fdimg0at.tek \
+		wbinimg src:ipl.bin len:512 from:0 to:0 \
+		copy from:haribote.sys to:@: \
+		imgout:haribote.img
 
 # 命令
-
-asm :
-	../os_tools/make.exe -r ipl.bin
-
 img :
-	../os_tools/make.exe -r helloos.img
+	$(MAKE) haribote.img
 
 run :
-	../os_tools/make.exe img
-	copy helloos.img ..\os_tools\qemu\fdimage0.bin
-	../os_tools/make.exe -C ../os_tools/qemu
+	$(MAKE) img
+	$(COPY) haribote.img ..\os_tools\qemu\fdimage0.bin
+	$(MAKE) -C ../os_tools/qemu
 
 install :
-	../os_tools/make.exe img
-	../os_tools/imgtol.com w a: helloos.img
+	$(MAKE) img
+	$(IMGTOL) w a: haribote.img
 
 clean :
-	-del *.bin
-	-del *.lst
-	-del *.bak
-	-del *.img
-
+	-$(DEL) *.bin
+	-$(DEL) *.lst
+	-$(DEL) *.bak
+	-$(DEL) *.img
+	-$(DEL) *.sys
+	
 src_only :
-	../os_tools/make.exe clean
+	$(MAKE) clean
 
