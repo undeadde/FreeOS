@@ -38,4 +38,4 @@ clean :
 
 src_only :
 	../os_tools/make.exe clean
-	-del *.img
+
