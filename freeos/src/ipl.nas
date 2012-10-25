@@ -74,9 +74,8 @@ next:
 		JB		readloop	
 ; 当读完磁盘后进入CPU停止状态
 
-fin:
-		HLT					; CPU停止
-		JMP		fin			; 无限循环
+; 读完磁盘开始进入haribote.sys的运行
+		JMP		0xc200
 
 error:
 		MOV		SI,msg
