@@ -23,14 +23,14 @@ CYLS	EQU		10			; 声明柱面常数CYLS=10
 		DD		0xffffffff	; 可能是卷标号码
 		DB		"HARIBOTEOS"; 磁盘的名称
 		DB		"FAT12   "	; 磁盘格式名称
-		RESB		18		; 先空出18字节
+		RESB	18		; 先空出18字节
 
 ; 程序主体
 ; 读取扇区C0-H0-S2 到 C9-H1-S18, 512 * 17 +512 * 18 + 1024 * 9 * 18 = 183808 bytes 装载内存地址0x8200 ~ 0xa3ff处
 entry:
 		MOV		AX,0		;初始化寄存器
-		MOV 	SS,AX
-		MOV 	SP,0x7c00
+		MOV		SS,AX
+		MOV		SP,0x7c00
 		MOV		DS,AX 
 
 ; 读磁盘 CH/CL/DH/DL 分别为柱面，扇区，磁头，驱动器
