@@ -75,6 +75,7 @@ next:
 ; 当读完磁盘后进入CPU停止状态
 
 ; 读完磁盘开始进入haribote.sys的运行
+		MOV		[0x0ff0],CH
 		JMP		0xc200
 
 error:

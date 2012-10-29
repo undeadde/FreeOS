@@ -1,0 +1,4 @@
+---- CYLS Matches (3 in 2 files) ----
+Haribote.nas (src):CYLS	EQU		0x0ff0			; 设定启动区
+Ipl.nas (src):CYLS	EQU		10			; 声明柱面常数CYLS=10
+Ipl.nas (src):		CMP		CH,CYLS
