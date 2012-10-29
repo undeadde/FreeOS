@@ -2,7 +2,7 @@ void HariMain(void)
 {
 
 fin:
-	/* 这里想写上HLT，但是C语言不能使用HLT */
+	io_hlt();	/* 执行naskfun.nas 里面的_io_hlt(); */
 	goto fin;
 
 }
